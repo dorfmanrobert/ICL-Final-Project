@@ -12,6 +12,7 @@ import pickle
 from alg.models import NNet4l, trainNNet, testNNet
 
 def SAbound(k, N, bet):
+    # compute the bound
     m = np.linspace(k, N, num=N-1-k+1) 
     aux1 = np.sum(np.triu(np.log(np.ones((N-1-k+1,1))*m), 1), 1)
     aux2 = np.sum(np.triu(np.log(np.ones((N-1-k+1,1))*(m-k)), 1), 1)
@@ -45,26 +46,16 @@ def find_max_loss(net, test_loader, device='cuda'):
 
 
 def check_condition(C, net, test_loader, device='cuda'):
-    # with torch.no_grad():
-    #     for data, target in test_loader:
-    #         data, target = data.to(device), target.to(device)
-    #         outputs = net(data)
-    #         losses = F.nll_loss(outputs, target, reduction='none')
     max_loss_indx, max_loss = find_max_loss(net, test_loader)
-    print(f"previous max loss{C}")
-    print(f"new max loss {max_loss}")
-    print(max_loss <= C)
     if max_loss <= C:
-        print("TERMINATING!!")
         return True
     else:
         return False
     
     
 def changeComp(C, nets, max_nonsupp_losses, n_test, test_loader_comp, device='cuda'):
-    # compute p change compression
+    # estimate probability of change of compression
     # pass one datapoint at a time
-    print(len(test_loader_comp.dataset))
     num_misclass = 0
     for data, target in test_loader_comp:
         data, target = data.to(device), target.to(device)
@@ -96,7 +87,6 @@ def changeComp(C, nets, max_nonsupp_losses, n_test, test_loader_comp, device='cu
 
 
 def SAalg(C, train, supp_loader, nonsupp_loader, supp_indx, nonsupp_indx, train_loader, test_loader, loader_kargs, learning_rate=.001, momentum=.9, batch_size=250, train_epochs=100, dropout_prob=.2, device='cuda', verbose=False, continuing=True):
-
 
     # run SA alg, additing worst points to support set
     counter = 0
@@ -139,11 +129,6 @@ def SAalg(C, train, supp_loader, nonsupp_loader, supp_indx, nonsupp_indx, train_
         supp_sampler = SubsetRandomSampler(supp_indx) 
         supp_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, sampler=supp_sampler, shuffle=False, **loader_kargs)
         
-        # # ORIGINAL
-        # nonsupp_sampler = SubsetRandomSampler(nonsupp_indx)
-        # nonsupp_loader = torch.utils.data.DataLoader(train, batch_size=len(nonsupp_indx), sampler=nonsupp_sampler, shuffle=False, **loader_kargs)
-        
-        #NEW
         nonsupp = Subset(train,nonsupp_indx)
         nonsupp_loader = torch.utils.data.DataLoader(nonsupp, batch_size=len(nonsupp_indx), shuffle=False, **loader_kargs)
     
@@ -159,7 +144,7 @@ def SAalg(C, train, supp_loader, nonsupp_loader, supp_indx, nonsupp_indx, train_
         for epoch in trange(train_epochs):
             trainNNet(net, optimizer, epoch, supp_loader, device=device, verbose=verbose)
         
-             
+ 
         with open('net.pkl', 'wb') as f:
             pickle.dump(net, f)
                         
@@ -168,7 +153,7 @@ def SAalg(C, train, supp_loader, nonsupp_loader, supp_indx, nonsupp_indx, train_
             pickle.dump(nets, f)
    
 
-        # update C 
+        # update C (optional)
         # _, max_loss = find_max_loss(net, supp_loader, device=device)
         # C = max_loss
         # with open('C.pkl', 'wb') as f:
@@ -190,6 +175,4 @@ def SAalg(C, train, supp_loader, nonsupp_loader, supp_indx, nonsupp_indx, train_
             print(f"nonsupp indx length {len(nonsupp_indx)}")
             print(f"epsilon{C}")
 
-
-    
     return net, nets, max_nonsupp_losses, supp_indx, nonsupp_indx, supp_loader, nonsupp_loader, C
