@@ -126,8 +126,6 @@ class ConvNet2l(nn.Module):
         self.l4 = Linear(128, 2, device=device)
         self.d = nn.Dropout(dropout_prob)
 
-
-
     def forward(self, x):
         x = F.relu(self.l1(x))
         x = F.relu(self.l2(x))
