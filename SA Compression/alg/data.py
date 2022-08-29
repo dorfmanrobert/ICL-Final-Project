@@ -56,15 +56,10 @@ def loadbatches(train, test, loader_kargs, batch_size=100, perc_train=1.0, num_s
 
     supp_sampler = SubsetRandomSampler(supp_indx) 
     supp_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, sampler=supp_sampler, shuffle=False, **loader_kargs)
-    #NEW
+
     nonsupp = Subset(train,nonsupp_indx)
     nonsupp_loader = torch.utils.data.DataLoader(nonsupp, batch_size=len(nonsupp_indx), shuffle=False, **loader_kargs)
-    
-    #ORIG
-    # nonsupp_sampler = SubsetRandomSampler(nonsupp_indx)
-    # nonsupp_loader = torch.utils.data.DataLoader(train, batch_size=len(nonsupp_indx), sampler=nonsupp_sampler, shuffle=False, **loader_kargs)
-    #nonsupp_loader = torch.utils.data.DataLoader(train, batch_size=batch_size, sampler=nonsupp_sampler, shuffle=False)
-
+ 
     # all_train_sampler = SubsetRandomSampler(indices)
     train_loader = torch.utils.data.DataLoader(train, batch_size=n_train, shuffle=True, **loader_kargs)
     test_loader = torch.utils.data.DataLoader(test, batch_size=1, shuffle=True, **loader_kargs)
@@ -94,7 +89,7 @@ def loaddataset(name_data):
             transforms.Normalize(mean=[.5], std=[.5])]
         )
 
-        # load the data
+        # Load the data
         download = True
         input_root = 'data'
         train = BreastMNIST(root=input_root, split='train', transform=data_transform, download=download)
