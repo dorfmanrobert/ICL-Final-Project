@@ -30,13 +30,8 @@ def SArunexp(g, C, name_data='binarymnist', delta=.025, learning_rate=.001, mome
     total_num = supp_num + nonsupp_num
     
     sa_ub = SAbound(supp_num, total_num, delta)
-    
-    
     p_misclass = testNNet(net, test_loader)
-
-    
     p_change_comp = changeComp(C, nets, max_nonsupp_losses, len(test_loader.dataset), test_loader, device=device)
-    
     
     # # Save results
     # results = [sa_ub, p_misclass, p_change_comp, C, supp_num, nonsupp_num]
