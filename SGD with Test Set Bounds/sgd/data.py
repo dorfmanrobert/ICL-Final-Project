@@ -15,21 +15,13 @@ from medmnist import BreastMNIST
 
 class SyntheticDataset(Dataset):
     def __init__(self, n=1000):
-        dataset_init = sklearn.datasets.make_circles(n_samples=n, noise=0.02) # sklearn.datasets.make_classification(n_samples=n, n_features=2, n_informative=2, n_redundant=0, n_repeated=0, n_classes=2, n_clusters_per_class=2, weights=None, flip_y=0.01, class_sep=1.0, hypercube=True, shift=0.0, scale=1.0, shuffle=True, random_state=None)
-        
+        dataset_init = sklearn.datasets.make_classification(n_samples=n, n_features=2, n_informative=2, n_redundant=0, n_repeated=0, n_classes=2, n_clusters_per_class=2, weights=None, flip_y=0.01, class_sep=1.0, hypercube=True, shift=0.0, scale=1.0, shuffle=True, random_state=None)
         self.data = torch.Tensor(dataset_init[0])
         self.targets = torch.Tensor(dataset_init[1])
-
         self.dataset = []
         for i in range(len(self.data)):
             datapoint = (self.data[i], int(self.targets[i].item()))
             self.dataset.append(datapoint)
-
-    # def data(self):
-    #     return self.data
-        
-    # def targets(self):
-    #     return self.targets
 
     def __len__(self):
         return len(self.dataset)
@@ -76,6 +68,8 @@ def loaddataset(name_data):
 
     return train, test
 
+
+# The below is adapted from https://github.com/mperezortiz/PBB
 def loadbatches(train, test, loader_kargs, batch_size, perc_train=1.0, perc_val=.1):
     """Function to load the batches for the dataset
 
@@ -102,11 +96,8 @@ def loadbatches(train, test, loader_kargs, batch_size, perc_train=1.0, perc_val=
     n_train = len(train)
     n_test = len(test)
 
-
-
     # reduce number of training/validation data if needed
     new_num_train = int(np.round((perc_train)*n_train))
-
 
     # split into training and "test" set (for computing bound)
     num_val = int(np.round((perc_val)*new_num_train))
@@ -120,9 +111,8 @@ def loadbatches(train, test, loader_kargs, batch_size, perc_train=1.0, perc_val=
     new_train = Subset(train,indices_train)
     train_data, val_data = torch.utils.data.random_split(new_train, [num_train, num_val])
     
-    
-    print(f"train size {len(train_data)}")
-    print(f"val size {len(val_data)}")
+    # print(f"train size {len(train_data)}")
+    # print(f"val size {len(val_data)}")
     
     # create data loaders
     indices = list(range(num_train))
@@ -133,8 +123,7 @@ def loadbatches(train, test, loader_kargs, batch_size, perc_train=1.0, perc_val=
     val_loader = torch.utils.data.DataLoader(val_data, batch_size=batch_size, shuffle=True,  **loader_kargs)
     test_loader = torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=True, **loader_kargs)
     
-        
-    with open('val.pkl', 'wb') as f:
-        pickle.dump(val_data, f)
+#     with open('val.pkl', 'wb') as f:
+#         pickle.dump(val_data, f)
     
     return train_loader, val_loader, test_loader
