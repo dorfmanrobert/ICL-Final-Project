@@ -75,7 +75,6 @@ class InvKL(torch.autograd.Function):
     grad_q = (torch.log(torch.clamp((1-q)/(1-out), min=eps)) - torch.log(torch.clamp(q/out, min=eps))) * grad_c * grad_output
     return grad_q, grad_c, None #last None is for iter...
 
-
 invkl = InvKL.apply
 
 
@@ -234,6 +233,7 @@ class PBBobj():
 
         return train_obj, kl/self.n_posterior, outputs, loss_01
 
+    
     def compute_final_stats_risk(self, net_1, net_2, avgnet1=None, avgnet2=None, input_1=None, target_1=None, input_2=None, target_2=None, data_loader_1=None, data_loader_2=None, clamping=True):
         
         # compute kl
@@ -245,7 +245,6 @@ class PBBobj():
         # for one posterior training method 
         else:
             kl =  net_1.compute_kl().cpu()
-        
                   
         # Reduce number
         if data_loader_1 != None:
@@ -263,10 +262,7 @@ class PBBobj():
                 error_ce_1, error_01_1 = self.mcsampling(avgnet1, input_1, target_1, batches=False, clamping=True)
                 error_ce_2, error_01_2 = self.mcsampling(avgnet1, input_2, target_2, batches=False, clamping=True)
             else:
-                error_ce_1, error_01_1 = self.mcsampling(net_1, input_1, target_1, batches=False, clamping=True)
-                
-
-
+                error_ce_1, error_01_1 = self.mcsampling(net_1, input_1, target_1, batches=False, clamping=True)         
 
         # 1) compute ubber bound (first kl-1) on MC estimate of expected empirical risk holding w prob 1 - delta_test 
         # for both posterior training methods
