@@ -9,6 +9,9 @@ from torchvision import datasets, transforms
 from torchvision.utils import make_grid
 from tqdm import tqdm, trange
 
+
+# Most of the network implementation below is from https://github.com/mperezortiz/PBB
+
 def trunc_normal_(tensor, mean=0., std=1., a=-2., b=2.):
     # type: (Tensor, float, float, float, float) -> Tensor
     """Fills the input Tensor with values drawn from a truncated
