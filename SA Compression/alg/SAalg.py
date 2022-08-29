@@ -89,7 +89,6 @@ def changeComp(C, nets, max_nonsupp_losses, n_test, test_loader_comp, device='cu
 def SAalg(C, train, supp_loader, nonsupp_loader, supp_indx, nonsupp_indx, train_loader, test_loader, loader_kargs, learning_rate=.001, momentum=.9, batch_size=250, train_epochs=100, dropout_prob=.2, device='cuda', verbose=False, continuing=True):
 
     # run SA alg, additing worst points to support set
-    counter = 0
     net = NNet4l(dropout_prob=dropout_prob, device=device).to(device)
     
        
