@@ -144,8 +144,8 @@ class PBBobj():
         return empirical_risk
 
     def compute_losses(self, net, data, target, clamping=True):
-        # compute both cross entropy and 01 loss
-        # returns outputs of the network as well
+        # Compute both cross entropy and 01 loss
+        # Returns outputs of the network as well
         outputs = net(data, sample=True, clamping=True, pmin=self.pmin)
         loss_ce = self.compute_empirical_risk(outputs, target, clamping)
         pred = outputs.max(1, keepdim=True)[1]
@@ -155,7 +155,7 @@ class PBBobj():
         return loss_ce, loss_01, outputs
 
     def bound(self, empirical_risk, kl, train_size):
-        # compute training objectives
+        # Compute training objectives
         if self.objective == 'quad':
             kl = kl * self.kl_penalty
             repeated_kl_ratio = torch.div(kl + np.log((2*np.sqrt(train_size))/self.delta), 2*train_size)
@@ -171,7 +171,7 @@ class PBBobj():
         return train_obj
 
     def mcsampling(self, net, input, target, batches=True, data_loader=None, clamping=True):
-        # compute empirical risk with Monte Carlo sampling
+        # Compute empirical risk with Monte Carlo sampling
         error = 0.0
         cross_entropy = 0.0
         if batches:
@@ -203,7 +203,7 @@ class PBBobj():
         return cross_entropy, error
 
     def train_obj(self, net, input, target, clamping=True):
-        # compute train objective and return all metrics
+        # Compute train objective and return all metrics
         outputs = torch.zeros(target.size(0), self.classes).to(self.device)
         kl = net.compute_kl()
         loss_ce, loss_01, outputs = self.compute_losses(net, input, target, clamping)
@@ -211,7 +211,7 @@ class PBBobj():
         if self.train_method == 'original':
             train_obj = self.bound(loss_ce, kl, self.n_posterior)
 
-        # code for CondGauss adapted from https://github.com/eclerico/ CondGauss
+        # Code for CondGauss adapted from https://github.com/eclerico/ CondGauss
         elif self.train_method == 'conditional':
             # 2) compute closed form conditional expected 0-1 loss
             # sample from last layer and compute output of hidden layers post activation
@@ -236,13 +236,13 @@ class PBBobj():
     
     def compute_final_stats_risk(self, net_1, net_2, avgnet1=None, avgnet2=None, input_1=None, target_1=None, input_2=None, target_2=None, data_loader_1=None, data_loader_2=None, clamping=True):
         
-        # compute kl
-        # for two posterior training method
+        # Compute kl
+        # For two posterior training method
         if self.prior_train_method == 'two':
             kl_1 = avgnet1.compute_kl()#.cpu()
             kl_2 = avgnet2.compute_kl()#.cpu()
             kl = (kl_1 + kl_2) / 2 
-        # for one posterior training method 
+        # For one posterior training method 
         else:
             kl =  net_1.compute_kl().cpu()
                   
@@ -264,20 +264,20 @@ class PBBobj():
             else:
                 error_ce_1, error_01_1 = self.mcsampling(net_1, input_1, target_1, batches=False, clamping=True)         
 
-        # 1) compute ubber bound (first kl-1) on MC estimate of expected empirical risk holding w prob 1 - delta_test 
-        # for both posterior training methods
+        # 1) Compute ubber bound (first kl-1) on MC estimate of expected empirical risk holding w prob 1 - delta_test 
+        # For both posterior training methods
         empirical_risk_ce_1 = inv_kl(error_ce_1.item(), np.log(2/self.delta_test)/self.mc_samples)
         empirical_risk_01_1 = inv_kl(error_01_1, np.log(2/self.delta_test)/self.mc_samples)
-        # for two posterior training method
+        # For two posterior training method
         if self.prior_train_method == 'two':
             empirical_risk_ce_2 = inv_kl(error_ce_2.item(), np.log(2/self.delta_test)/self.mc_samples)
             empirical_risk_01_2 = inv_kl(error_01_2, np.log(2/self.delta_test)/self.mc_samples)
             empirical_risk_01 = (empirical_risk_01_1 + empirical_risk_01_2) / 2  # average the empirical risk estimates
-        # for one posterior training method
+        # For one posterior training method
         else:
             empirical_risk_01 = empirical_risk_01_1
 
-        # 2) compute ubber bound (second kl-1) on expected risk holding w prob 1 - delta
+        # 2) Compute ubber bound (second kl-1) on expected risk holding w prob 1 - delta
         #risk_ce = inv_kl_torch_riv(empirical_risk_ce, (kl + np.log((2 *np.sqrt(self.n_bound))/self.delta_test))/self.n_bound)
         risk_01 = inv_kl(empirical_risk_01, (kl + np.log((2 *np.sqrt(self.n_bound))/self.delta))/self.n_bound)
 
