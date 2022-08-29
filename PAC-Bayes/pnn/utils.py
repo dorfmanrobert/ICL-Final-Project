@@ -9,10 +9,8 @@ from torchvision import datasets, transforms
 from torchvision.utils import make_grid
 from tqdm import tqdm, trange
 
-
 from pnn.networks import NNet4l, ProbNNet4l, trainNNet, testNNet,trainPNNet, computeRiskCertificates, testStochastic
 from pnn.bounds import PBBobj
-
 from pnn.data import loadbatches, loaddataset
 
 
@@ -254,13 +252,13 @@ perc_prior=0.5, batch_size=250, train_method='original', model_type='fcn', prior
 def avgnets(prior_net, net1, net2, rho_prior, model_type='fcn'):
     if model_type == 'fcn':
         avgnet = ProbNNet4l(rho_prior, init_net=prior_net)
-        # Need to set rho not sigma, convert 
-        # sigma = log(exp(rho)+1)
-        # exp(sigma) = exp(rho) + 1
-        # log(exp(sigma) - 1) = rho
     elif model_type == 'cnn':
         avgnet = ProbConvNet2l(rho_prior, init_net=prior_net)
 
+    # Need to set rho not sigma, convert 
+    # sigma = log(exp(rho)+1)
+    # exp(sigma) = exp(rho) + 1
+    # log(exp(sigma) - 1) = rho
     if net2 != none:
         avgnet.l1.weight.mu = nn.Parameter((net1.l1.weight.mu + net2.l1.weight.mu) / 2)
         avgnet.l1.weight.rho = nn.Parameter(torch.log(torch.exp(torch.sqrt((net1.l1.weight.sigma**2 + net2.l1.weight.sigma**2) / 4)) - 1))
