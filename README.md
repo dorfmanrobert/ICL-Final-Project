@@ -11,4 +11,4 @@ We build on top of existing code in implementing the PAC-Bayesian and test set m
 3) building in the ability to run training with the averaged posterior approach of https://arxiv.org/pdf/1905.13367.pdf
 
 For the test set bounds we adapt implementations from https://github.com/cambridge-mlg/pac-bayes-tightness-small-data.
-All experiments can be run using the runexp.py file (with desired arguments) in each approach's folder.
+For each approach, all experiments for can be run using the runexp.py file (with desired arguments) contained in that approach's folder.
